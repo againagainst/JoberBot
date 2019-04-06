@@ -21,7 +21,9 @@ class JobTitleMaker:
             suffix = "."
             space = " "
         jobline = self.make_jobline()
-        return f'{prefix}"{jobline}"{space}{suffix}'
+        return '{prefix}"{jobline}"{space}{suffix}'.format(
+            prefix=prefix, jobline=jobline, space=space, suffix=suffix
+        )
 
     def make_jobline(self):
         return random.choice(self.joblines)
