@@ -20,17 +20,17 @@ logger = logging.getLogger(__name__)
 # update. Error handlers also receive the raised TelegramError object in error.
 def start(bot, update):
     """Send a message when the command /start is issued."""
-    update.message.reply_text("Type /slogan to get a slogan")
+    update.message.reply_text("Someone want to do a job")
 
 
 def help(bot, update):
     """Send a message when the command /help is issued."""
-    update.message.reply_text("Type /slogan to get a slogan")
+    update.message.reply_text("Type /job to get a job")
 
 
-def slogan(bot, update):
+def job(bot, update):
     """Echo the user message."""
-    txt = gen.sloganmaker.make_slogan()
+    txt = gen.jobmaker.make_jobline()
     update.message.reply_text(txt)
 
 
@@ -51,7 +51,7 @@ def main():
 
     # on different commands - answer in Telegram
     dp.add_handler(CommandHandler("start", start))
-    dp.add_handler(CommandHandler("job", slogan))
+    dp.add_handler(CommandHandler("job", job))
     dp.add_handler(CommandHandler("help", help))
 
     # log all errors

@@ -1,27 +1,38 @@
 import random
-import sys
-
-import pymorphy2
+import json
 
 
-class SloganMaker:
-    TERMS_FILE = "data/zdb_term_selected_utf8.txt"
-    WORDS_FILE = "data/zdb_selected_utf8.txt"
+class JobTitleMaker:
+    JOBS_FILE = "data/joblines_norm.json"
 
     def __init__(self):
-        with open(SloganMaker.WORDS_FILE, "r") as ifp:
-            self.data = ifp.read().split("\n")
+        with open(JobTitleMaker.JOBS_FILE, "r", encoding="utf-8") as ifp:
+            loaded_json = json.load(ifp)
+            self.joblines = loaded_json["joblines"]
+            self.prefixes = loaded_json["prefix"]
+            self.suffixes = loaded_json["suffix"]
 
-        with open(SloganMaker.TERMS_FILE, "r") as ifp:
-            self.term_data = ifp.read().split("\n")
+    def make_response(self):
+        prefix = random.choice(self.prefixes)
+        suffix = random.choice(self.suffixes)
+        space = random.choice((" ", ": ", " — ")) if suffix else ""
+        if not any((prefix, suffix)):
+            prefix = self.prefixes[0]
+            suffix = "."
+            space = " "
+        jobline = self.make_jobline()
+        return f'{prefix}"{jobline}"{space}{suffix}'
 
-    def make_slogan(self):
-        morph = pymorphy2.MorphAnalyzer()
-        one = random.choice(self.term_data)
-        two, three = random.sample(population=self.data, k=2)
-        parsed = morph.parse(three)[0]
-        three = parsed.inflect({"gent"}).word
-        return "{0} — {1} {2}".format(one, two, three)
+    def make_jobline(self):
+        return random.choice(self.joblines)
 
 
-sloganmaker = SloganMaker()
+jobmaker = JobTitleMaker()
+
+
+def main():
+    print("\n".join(jobmaker.make_message() for _ in range(10)))
+
+
+if __name__ == "__main__":
+    main()
