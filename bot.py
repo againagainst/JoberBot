@@ -4,6 +4,7 @@
 import logging
 import configparser
 
+from telegram import MessageEntity
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 
 import gen
@@ -26,12 +27,12 @@ def start(bot, update):
 def help(bot, update):
     """Send a message when the command /help is issued."""
     update.message.reply_text(
-        """Here is the list of my commands:
+        """Вот что я могу:
 
-/job — to get a job
-/advice — to get HR advice
+Комманда /job — выдам профессию из "Единого тарифно-квалификационного справочника работ и профессий рабочих".
 
-I may send a piece of advice when needed.
+Могу помогать советами по найму в ответах на случайные реплики.
+Обязяан дать совет по найму при прямом упоминании.
 """
     )
 
@@ -45,7 +46,7 @@ def job(bot, update):
 def advice(bot, update):
     txt = gen.jobmaker.make_response()
     logging.info("Generated advice: %s", txt)
-    update.message.reply_text(txt)
+    update.message.reply_text(txt, quote=True)
 
 
 def error(bot, update, error):
@@ -66,7 +67,13 @@ def main():
     # on different commands - answer in Telegram
     dp.add_handler(CommandHandler("start", start))
     dp.add_handler(CommandHandler("job", job))
-    dp.add_handler(CommandHandler("advice", advice))
+    dp.add_handler(
+        MessageHandler(
+            Filters.entity(MessageEntity.MENTION)
+            | Filters.entity(MessageEntity.TEXT_MENTION),
+            advice,
+        )
+    )
     dp.add_handler(CommandHandler("help", help))
     # dp.
 
