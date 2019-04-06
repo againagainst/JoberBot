@@ -25,21 +25,26 @@ def start(bot, update):
 
 def help(bot, update):
     """Send a message when the command /help is issued."""
-    update.message.reply_text("""Here is the list of my commands:
+    update.message.reply_text(
+        """Here is the list of my commands:
 
 /job — to get a job
 /advice — to get HR advice
 
 I may send a piece of advice when needed.
-""")
+"""
+    )
 
 
 def job(bot, update):
     txt = gen.jobmaker.make_jobline()
+    logging.info("Generated job: %s", txt)
     update.message.reply_text(txt)
+
 
 def advice(bot, update):
     txt = gen.jobmaker.make_response()
+    logging.info("Generated advice: %s", txt)
     update.message.reply_text(txt)
 
 
