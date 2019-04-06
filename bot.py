@@ -25,12 +25,21 @@ def start(bot, update):
 
 def help(bot, update):
     """Send a message when the command /help is issued."""
-    update.message.reply_text("Type /job to get a job")
+    update.message.reply_text("""Here is the list of my commands:
+
+/job — to get a job
+/advice — to get HR advice
+
+I may send a piece of advice when needed.
+""")
 
 
 def job(bot, update):
-    """Echo the user message."""
     txt = gen.jobmaker.make_jobline()
+    update.message.reply_text(txt)
+
+def advice(bot, update):
+    txt = gen.jobmaker.make_response()
     update.message.reply_text(txt)
 
 
@@ -52,7 +61,9 @@ def main():
     # on different commands - answer in Telegram
     dp.add_handler(CommandHandler("start", start))
     dp.add_handler(CommandHandler("job", job))
+    dp.add_handler(CommandHandler("advice", advice))
     dp.add_handler(CommandHandler("help", help))
+    # dp.
 
     # log all errors
     dp.add_error_handler(error)
