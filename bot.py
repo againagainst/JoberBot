@@ -75,6 +75,10 @@ def main():
     # Create the EventHandler and pass it your bot's token.
     updater = Updater(token=config["telegram"]["token"])
 
+    # Proxy Version
+    # REQUEST_KWARGS = {"proxy_url": "socks5h://127.0.0.1:9150"}
+    # updater = Updater(token=config["telegram"]["token"], request_kwargs=REQUEST_KWARGS)
+
     # Get the dispatcher to register handlers
     dp = updater.dispatcher
     updater.bot.probability = get_probability_from_config(config)
@@ -84,8 +88,7 @@ def main():
     dp.add_handler(CommandHandler("job", callback=job))
     dp.add_handler(CommandHandler("help", callback=bot_help))
     mention_handler = MessageHandler(
-        Filters.entity(MessageEntity.MENTION)
-        | Filters.entity(MessageEntity.TEXT_MENTION),
+        Filters.entity(MessageEntity.MENTION) & Filters.regex("@huntflow_jober_bot"),
         callback=advice,
     )
     dp.add_handler(mention_handler)
