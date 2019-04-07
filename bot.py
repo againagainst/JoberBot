@@ -3,6 +3,7 @@
 
 import logging
 import configparser
+import random
 
 from telegram import MessageEntity
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
@@ -49,9 +50,22 @@ def advice(bot, update):
     update.message.reply_text(txt, quote=True)
 
 
+def recommendation(bot, update):
+    if random.randint(0, 100) < bot.probability:
+        logging.info("Random event with probability %d percent", bot.probability)
+        advice(bot, update)
+
+
 def error(bot, update, error):
     """Log Errors caused by Updates."""
     logger.warning('Update "%s" caused error "%s"', update, error)
+
+
+def get_probability_from_config(config):
+    try:
+        return int(config["telegram"]["probability"])
+    except KeyError:
+        return 0
 
 
 def main():
@@ -63,17 +77,19 @@ def main():
 
     # Get the dispatcher to register handlers
     dp = updater.dispatcher
+    updater.bot.probability = get_probability_from_config(config)
 
     # on different commands - answer in Telegram
-    dp.add_handler(CommandHandler("start", start))
-    dp.add_handler(CommandHandler("job", job))
-    dp.add_handler(
-        MessageHandler(
-            Filters.entity(MessageEntity.MENTION)
-            | Filters.entity(MessageEntity.TEXT_MENTION),
-            advice,
-        )
+    dp.add_handler(CommandHandler("start", callback=start))
+    dp.add_handler(CommandHandler("job", callback=job))
+    mention_handler = MessageHandler(
+        Filters.entity(MessageEntity.MENTION)
+        | Filters.entity(MessageEntity.TEXT_MENTION),
+        callback=advice,
     )
+    dp.add_handler(mention_handler)
+    recommendation_handler = MessageHandler(filters=None, callback=recommendation)
+    dp.add_handler(recommendation_handler)
     dp.add_handler(CommandHandler("help", help))
     # dp.
 
