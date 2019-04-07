@@ -25,7 +25,7 @@ def start(bot, update):
     update.message.reply_text("Someone want to do a job")
 
 
-def help(bot, update):
+def bot_help(bot, update):
     """Send a message when the command /help is issued."""
     update.message.reply_text(
         """Вот что я могу:
@@ -82,6 +82,7 @@ def main():
     # on different commands - answer in Telegram
     dp.add_handler(CommandHandler("start", callback=start))
     dp.add_handler(CommandHandler("job", callback=job))
+    dp.add_handler(CommandHandler("help", callback=bot_help))
     mention_handler = MessageHandler(
         Filters.entity(MessageEntity.MENTION)
         | Filters.entity(MessageEntity.TEXT_MENTION),
@@ -90,7 +91,6 @@ def main():
     dp.add_handler(mention_handler)
     recommendation_handler = MessageHandler(filters=None, callback=recommendation)
     dp.add_handler(recommendation_handler)
-    dp.add_handler(CommandHandler("help", help))
     # dp.
 
     # log all errors
