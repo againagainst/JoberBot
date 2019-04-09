@@ -5,7 +5,7 @@ import logging
 import configparser
 import random
 
-from telegram import MessageEntity
+from telegram import MessageEntity, Chat
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 
 import gen
@@ -33,7 +33,7 @@ def bot_help(bot, update):
 Комманда /job — выдам профессию из "Единого тарифно-квалификационного справочника работ и профессий рабочих".
 
 Могу помогать советами по найму в ответах на случайные реплики.
-Обязяан дать совет по найму при прямом упоминании.
+Обязан дать совет по найму при прямом упоминании в группе и всегда в личных сообщениях.
 """
     )
 
@@ -51,9 +51,20 @@ def advice(bot, update):
 
 
 def recommendation(bot, update):
-    if random.randint(0, 100) < bot.probability:
-        logging.info("Random event with probability %d percent", bot.probability)
-        advice(bot, update)
+    is_private = update.effective_chat.type == Chat.PRIVATE
+    if not is_private:
+        if update.message.text:
+            probability = bot.probability + len(str(len(update.message.text)))
+            if random.randint(0, 100) < probability:
+                logging.info(
+                    "Random event with probability %d percent", probability
+                )
+            else:
+                return
+        else:
+            return
+
+    advice(bot, update)
 
 
 def error(bot, update, error):
@@ -88,7 +99,9 @@ def main():
     dp.add_handler(CommandHandler("job", callback=job))
     dp.add_handler(CommandHandler("help", callback=bot_help))
     mention_handler = MessageHandler(
-        Filters.entity(MessageEntity.MENTION) & Filters.regex("@huntflow_jober_bot"),
+        Filters.text
+        & Filters.entity(MessageEntity.MENTION)
+        & Filters.regex("@huntflow_jober_bot"),
         callback=advice,
     )
     dp.add_handler(mention_handler)
